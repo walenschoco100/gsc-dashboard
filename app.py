@@ -1,8 +1,26 @@
 import streamlit as st
+import json
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 from utils.gsc_helper import fetch_all_data, get_sites_list, get_performance_data
+
+# Membuat kredensial Google API dari Streamlit Secrets
+credentials = service_account.Credentials.from_service_account_info(
+    json.loads(st.secrets["gcp"]["keyfile"])
+)
+
+# Membuat layanan Google Search Console
+def get_gsc_service():
+    try:
+        service = build('searchconsole', 'v1', credentials=credentials)
+        st.success("Berhasil terhubung ke Google Search Console API!")
+        return service
+    except Exception as e:
+        st.error(f"Error dalam membuat layanan GSC: {e}")
+        return None
 
 # Konfigurasi halaman Streamlit
 st.set_page_config(page_title="Dashboard GSC - Monitoring Domain Global", layout="wide")
