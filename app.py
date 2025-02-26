@@ -1,31 +1,13 @@
 import streamlit as st
-import json
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
 import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 from utils.gsc_helper import fetch_all_data, get_sites_list, get_performance_data
 
-# Membuat kredensial Google API dari Streamlit Secrets
-credentials = service_account.Credentials.from_service_account_info(
-    json.loads(st.secrets["gcp"]["keyfile"])
-)
-
-# Membuat layanan Google Search Console
-def get_gsc_service():
-    try:
-        service = build('searchconsole', 'v1', credentials=credentials)
-        st.success("Berhasil terhubung ke Google Search Console API!")
-        return service
-    except Exception as e:
-        st.error(f"Error dalam membuat layanan GSC: {e}")
-        return None
-
 # Konfigurasi halaman Streamlit
-st.set_page_config(page_title="Dashboard GSC - Monitoring Domain Global", layout="wide")
+st.set_page_config(page_title="GSC Global Reporting Dashboard", layout="wide")
 
-st.title("📈 Dashboard GSC - Monitoring Domain Global")
+st.title("📈 GSC Global Reporting Dashboard")
 
 # 📂 Pengaturan di Sidebar
 with st.sidebar:
@@ -64,17 +46,16 @@ with st.sidebar:
         help="Pilih untuk melihat data dari semua domain atau memilih satu domain."
     )
 
-    # 🔴 [Perubahan Penting] Mengambil Daftar Domain dari GSC
-    # Menggunakan get_sites_list() yang sudah diperbarui dengan autentikasi aman
+    # Dropdown untuk memilih domain jika mode per domain dipilih
     all_sites = get_sites_list()
     selected_site = None
-    if data_mode == "Data Per Domain" and all_sites:
+    if data_mode == "Data Per Domain":
         selected_site = st.selectbox("Pilih Domain", options=all_sites, help="Pilih domain untuk melihat data spesifik.")
 
-# 🟡 Variabel penyimpanan data yang diambil
+# Variabel penyimpanan data yang diambil
 data = pd.DataFrame()
 
-# 🔵 Tombol untuk mengambil data dari GSC
+# Tombol untuk mengambil data dari GSC
 if st.button("Fetch Data"):
     if data_mode == "Data Gabungan Semua Domain":
         data = fetch_all_data(start_date=start_date.strftime('%Y-%m-%d'), end_date=end_date.strftime('%Y-%m-%d'))
@@ -93,7 +74,7 @@ if st.button("Fetch Data"):
 # Mengambil data dari session state
 data = st.session_state.get('fetched_data', pd.DataFrame())
 
-# 🟢 Lanjutkan hanya jika ada data yang tersedia
+# Lanjutkan hanya jika ada data yang tersedia
 if not data.empty:
     st.dataframe(data)
 
