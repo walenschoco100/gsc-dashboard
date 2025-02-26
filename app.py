@@ -46,16 +46,17 @@ with st.sidebar:
         help="Pilih untuk melihat data dari semua domain atau memilih satu domain."
     )
 
-    # Dropdown untuk memilih domain jika mode per domain dipilih
+    # 🔴 [Perubahan Penting] Mengambil Daftar Domain dari GSC
+    # Menggunakan get_sites_list() yang sudah diperbarui dengan autentikasi aman
     all_sites = get_sites_list()
     selected_site = None
-    if data_mode == "Data Per Domain":
+    if data_mode == "Data Per Domain" and all_sites:
         selected_site = st.selectbox("Pilih Domain", options=all_sites, help="Pilih domain untuk melihat data spesifik.")
 
-# Variabel penyimpanan data yang diambil
+# 🟡 Variabel penyimpanan data yang diambil
 data = pd.DataFrame()
 
-# Tombol untuk mengambil data dari GSC
+# 🔵 Tombol untuk mengambil data dari GSC
 if st.button("Fetch Data"):
     if data_mode == "Data Gabungan Semua Domain":
         data = fetch_all_data(start_date=start_date.strftime('%Y-%m-%d'), end_date=end_date.strftime('%Y-%m-%d'))
@@ -74,7 +75,7 @@ if st.button("Fetch Data"):
 # Mengambil data dari session state
 data = st.session_state.get('fetched_data', pd.DataFrame())
 
-# Lanjutkan hanya jika ada data yang tersedia
+# 🟢 Lanjutkan hanya jika ada data yang tersedia
 if not data.empty:
     st.dataframe(data)
 
