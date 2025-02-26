@@ -1,23 +1,20 @@
-import os
+import json
 import pandas as pd
 import streamlit as st
 from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
-# 📂 Membuat service untuk Google Search Console API menggunakan file JSON di folder credentials
+# 📂 Membuat service untuk Google Search Console API menggunakan Streamlit Secrets
 def get_service():
     try:
-        # Menggunakan path absolut untuk file credentials
-        keyfile_path = os.path.join(os.getcwd(), 'credentials', 'credentials.json')
-        
-        if not os.path.exists(keyfile_path):
-            st.error("❌ File kunci JSON tidak ditemukan. Pastikan 'credentials/credentials.json' ada.")
-            return None
+        # Mengambil kredensial dari Streamlit Secrets
+        keyfile_json = st.secrets["gcp"]["keyfile"]
+        credentials_info = json.loads(keyfile_json)
 
-        # Membuat kredensial dari file JSON lokal
-        credentials = service_account.Credentials.from_service_account_file(
-            keyfile_path, 
+        # Membuat kredensial menggunakan informasi dari secrets
+        credentials = service_account.Credentials.from_service_account_info(
+            credentials_info, 
             scopes=['https://www.googleapis.com/auth/webmasters.readonly']
         )
 
